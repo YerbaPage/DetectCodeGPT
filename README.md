@@ -48,6 +48,7 @@ We hope that our work will aid in advancing the field of machine learning in cod
 
 ## Citation
 
+```bibtex
 @misc{shi2024lines,
       title={Between Lines of Code: Unraveling the Distinct Patterns of Machine and Human Programmers}, 
       author={Yuling Shi and Hongyu Zhang and Chengcheng Wan and Xiaodong Gu},
@@ -55,4 +56,4 @@ We hope that our work will aid in advancing the field of machine learning in cod
       eprint={2401.06461},
       archivePrefix={arXiv}
 }
-
+```
