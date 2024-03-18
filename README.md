@@ -45,15 +45,3 @@ To evaluate our DetectCodeGPT model:
 If you encounter any issues or have questions, please feel free to contact us!
 
 We hope that our work will aid in advancing the field of machine learning in code generation and detection. Thank you for your interest in DetectCodeGPT!
-
-## Citation
-
-```bibtex
-@misc{shi2024lines,
-      title={Between Lines of Code: Unraveling the Distinct Patterns of Machine and Human Programmers}, 
-      author={Yuling Shi and Hongyu Zhang and Chengcheng Wan and Xiaodong Gu},
-      year={2024},
-      eprint={2401.06461},
-      archivePrefix={arXiv}
-}
-```
