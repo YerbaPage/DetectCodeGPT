@@ -29,6 +29,28 @@ To prepare the datasets used in our study:
    python generate.py
    ```
 
+## Conducting the Empirical Study
+
+After data preparation, you can proceed to the empirical analysis:
+
+1. Navigate to the `code-analysis` directory.
+2. Analyze code length by running:
+   ```
+   python analyze_length.py
+   ```
+3. Verify Zipf's and Heaps' laws, and compute token frequencies with:
+   ```
+   python analyze_law_and_frequency.py
+   ```
+4. Analyze the proportion of different token categories by executing:
+   ```
+   python analyze_proportion.py
+   ```
+5. Study the naturalness of code snippets via:
+   ```
+   python analyze_naturalness.py
+   ```
+
 ## Using DetectCodeGPT
 
 To evaluate our DetectCodeGPT model:

@@ -19,7 +19,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 # device = torch.device('cpu')
 
 
-def load_data(path='./benchmark/humaneval-x', language='python', max_num=10000):
+def load_data(path='data/CodeSearchNet', language='python', max_num=10000):
 
     all_prompts = []
     all_solutions = []
@@ -279,8 +279,11 @@ def generate_hf(model_name, prompts, solutions, batch_size=16, max_length_sample
 
 if __name__ == "__main__":
 
+    # path = 'data/CodeSearchNet'
+    # path = "data/TheVault"
+
     parser = argparse.ArgumentParser()
-    parser.add_argument('--path', type=str, default="./benchmark/humaneval-x")
+    parser.add_argument('--path', type=str, default="data/CodeSearchNet")
     parser.add_argument('--max_num', type=int, default=100000)
     parser.add_argument('--temperature', type=float, default=0.2)
     parser.add_argument('--model_name', type=str, default='codeparrot/codeparrot')
