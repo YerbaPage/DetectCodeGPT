@@ -681,12 +681,23 @@ def _plot_heaps(code_lengths, vocab_sizes, title):
 if __name__ == '__main__':
 
     max_num = 100000
+    lang = 'python'
+
+
     code_pairs = load_data(dataset='CodeSearchNet', key='CodeLlama-7b-hf-5000-tp1.0-nostop', max_num=max_num)
 
-    # original_codes = code_pairs['original']
-    # code_item = original_codes[10]
+    # analyze all the identifiers
+    # analyze_identifiers(code_pairs, lang)
+    plt.rcParams.update({'font.size': 20})
 
-    lang = 'python'
+    # check the zipf's law
+    check_zipf_law(code_pairs, lang)
+
+    # check the heap's law
+    check_heaps_law(code_pairs, lang)
+
+
+    code_pairs = load_data(dataset='CodeSearchNet', key='CodeLlama-7b-hf-5000-tp1.0-nostop', max_num=max_num)
 
     # analyze all the identifiers
     # analyze_identifiers(code_pairs, lang)
