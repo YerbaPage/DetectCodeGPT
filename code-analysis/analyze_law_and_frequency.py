@@ -679,40 +679,14 @@ def _plot_heaps(code_lengths, vocab_sizes, title):
 
 
 if __name__ == '__main__':
-    # code_item = "def test():\n    print('hello world')"
-    # texts = ['''def quick_sort(arr):
-    # """Quick sort implementation"""
-    # if len(arr) <= 1:
-    #     return arr
-    # pivot = arr[0] # pick the first element as pivot
-    # left = [x for x in arr[1:] if x <= pivot] # left part
-    # right = [x for x in arr[1:] if x > pivot] # right part
-    # print('left: ', left)
-    # return quick_sort(left) + [pivot] + quick_sort(right)''']
-
-    # code_item = texts[0]
 
     max_num = 100000
-    # code_pairs = load_data(dataset='CodeSearchNet', key='santacoder-100000-tp0.2', max_num=max_num)
-    # code_pairs = load_data(dataset='CodeSearchNet', key='santacoder-100000-tp1.0', max_num=max_num)
-    # code_pairs = load_data(dataset='CodeSearchNet', key='codeparrot-100000-tp0.2', max_num=max_num)
-    # code_pairs = load_data(dataset='CodeSearchNet', key='codegen-2B-multi-100000', max_num=max_num)
-
-    # code_pairs = load_data(dataset='CodeSearchNet', key='WizardCoder-Python-7B-V1.0-5000-tp0.2', max_num=max_num)
-    # code_pairs = load_data(dataset='CodeSearchNet', key='WizardCoder-Python-7B-V1.0-5000-tp1.0', max_num=max_num)
-    # code_pairs = load_data(dataset='CodeSearchNet', key='CodeLlama-7b-hf-5000-tp0.2-nostop', max_num=max_num)
     code_pairs = load_data(dataset='CodeSearchNet', key='CodeLlama-7b-hf-5000-tp1.0-nostop', max_num=max_num)
 
     # original_codes = code_pairs['original']
     # code_item = original_codes[10]
 
     lang = 'python'
-    # tokenizer = AutoTokenizer.from_pretrained('bigcode/santacoder')
-    # # tokenizer = AutoTokenizer.from_pretrained('Salesforce/codegen-2B-multi')
-
-    # tokens_with_categories, _ = align_tokens_with_categories(code_item, 'python', tokenizer)
-    # logger.info(f'Code: {code_item}')
-    # logger.info(f'Tokens with categories: {tokens_with_categories}')
 
     # analyze all the identifiers
     # analyze_identifiers(code_pairs, lang)
