@@ -1,17 +1,31 @@
 # %%
-import os
-# os.environ["CUDA_VISIBLE_DEVICES"] = "0"
-os.environ["TOKENIZERS_PARALLELISM"] = "false"
-import argparse
-import json
-from baselines.utils.preprocessing import preprocess_and_save
-from baselines.utils.loadmodel import load_base_model_and_tokenizer, load_mask_filling_model
-# from baselines.sample_generate.generate import generate_data
-from baselines.all_baselines import run_all_baselines
-import matplotlib.pyplot as plt
-from loguru import logger
-from tqdm import tqdm
+from sklearn.neighbors import KernelDensity
+from scipy.stats import norm
+import math
+from baselines.utils.run_baseline import get_roc_metrics, get_precision_recall_metrics, get_accurancy, run_baseline_threshold_experiment
+import functools
+import torch
+from baselines.supervised import eval_supervised
+from baselines.entropy import get_entropy
+from baselines.rank import get_ranks, get_rank
+from baselines.loss import get_ll, get_lls
+import random
+import re
+import numpy as np
+from identifier_tagging import get_identifier
 import scipy.stats
+from tqdm import tqdm
+from loguru import logger
+import matplotlib.pyplot as plt
+from baselines.all_baselines import run_all_baselines
+from baselines.utils.loadmodel import load_base_model_and_tokenizer, load_mask_filling_model
+from baselines.utils.preprocessing import preprocess_and_save
+import json
+import argparse
+import os
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
+# from baselines.sample_generate.generate import generate_data
 
 
 parser = argparse.ArgumentParser()
@@ -62,26 +76,8 @@ parser.add_argument('--cut_def', action='store_true')
 parser.add_argument('--max_todo_num', type=int, default=3)
 
 args_dict = {
-    # 'dataset': "humaneval-x",
-    # 'dataset_key': "codegen-2B-multi",
     'dataset': "TheVault",
     # 'dataset': "CodeSearchNet",
-    # 'dataset_key': "santacoder-100000-tp1.0",
-    # 'dataset_key': "santacoder-100000-tp0.2",
-    # 'dataset_key': "codeparrot-100000-tp1.0",
-    # 'dataset_key': "codeparrot-100000-tp0.2",
-    # 'dataset_key': "phi-1-100000-tp1.0",
-    # 'dataset_key': "phi-1-100000-tp0.2",
-    # 'dataset_key': "phi-1_5-100000-tp0.2",
-    # 'dataset_key': "phi-1_5-100000-tp1.0",
-    # 'dataset_key': "incoder-1B-100000-tp1.0",
-    # 'dataset_key': "incoder-1B-100000-tp0.2",
-    # 'dataset_key': "codegen-2B-multi-100000-tp0.2",
-    # 'dataset_key': "codegen-2B-multi-100000-tp1.0",
-    # 'dataset_key': "starcoderbase-1b-10000-tp0.2",
-    # 'dataset_key': "starcoderbase-1b-10000-tp1.0",
-    # 'dataset_key': "starcoderbase-3b-10000-tp0.2",
-    # 'dataset_key': "starcoderbase-3b-10000-tp1.0",
     'dataset_key': "CodeLlama-7b-hf-10000-tp0.2",
     # 'dataset_key': "CodeLlama-7b-hf-10000-tp1.0",
     'pct_words_masked': 0.5,
@@ -90,20 +86,7 @@ args_dict = {
     'n_samples': 500,
     'n_perturbation_list': "50",
     'n_perturbation_rounds': 1,
-    # 'base_model_name': "bigcode/santacoder",
-    # 'base_model_name': "codeparrot/codeparrot",
-    # 'base_model_name': "microsoft/phi-1",
-    # 'base_model_name': "microsoft/phi-1_5",
-    # 'base_model_name': "facebook/incoder-1B",
-    # 'base_model_name': "Salesforce/codegen-2B-multi",
-    # 'base_model_name': "bigcode/starcoderbase-1b",
-    # 'base_model_name': "bigcode/starcoderbase-3b",
-    # 'base_model_name': "WizardLM/WizardCoder-3B-V1.0",
-    # 'base_model_name': "Salesforce/codegen2-3_7B",
     'base_model_name': "codellama/CodeLlama-7b-hf",
-    # 'mask_filling_model_name': "t5-large",
-    # 'mask_filling_model_name': "Salesforce/CodeT5-large",
-    # 'mask_filling_model_name': "facebook/incoder-1B",
     'mask_filling_model_name': "Salesforce/codet5p-770m",
     'batch_size': 50,
     'chunk_size': 10,
@@ -132,12 +115,7 @@ args_dict = {
     'min_words': 55,
     'temperature': 1,
     'baselines': "LRR,DetectGPT,NPR",
-    # 'perturb_type': "random-line-shuffle", # identifier-masking, random
-    # 'perturb_type': "random-insert-newline", # identifier-masking, random
-    # 'perturb_type': "random-insert-space", # identifier-masking, random
-    'perturb_type': "random-insert-space+newline", # half of the examples will have newline, half will have new space
-    # 'perturb_type': "random-insert-space-newline", # apply space and then newline
-    # 'perturb_type': "random", # identifier-masking, random
+    'perturb_type': "random-insert-space+newline",
     'min_len': 0,
     'max_len': 128,
     'max_comment_num': 10,
@@ -169,7 +147,6 @@ model_config = load_mask_filling_model(args, mask_filling_model_name, model_conf
 
 logger.info(f'args: {args}')
 
-# %%
 def generate_data(dataset, key, max_num=200, min_len=0, max_len=128, max_comment_num=10, max_def_num=5, cut_def=False, max_todo_num=3):
 
     path = f'../code-generation/output/{dataset}/{key}/outputs.txt'
@@ -192,11 +169,6 @@ def generate_data(dataset, key, max_num=200, min_len=0, max_len=128, max_comment
                 continue
             line = json.loads(line)
 
-            # add the item if it's not too long (128 tokens)
-            # if len(line['solution'].split()) <= 128 and len(line['output'].split()) <= 128:
-            #     all_originals.append(line['solution'])
-            #     all_samples.append(line['output'])
-
             # cut out the 'def' part after the first generation
             if cut_def:
                 line['output'] = line['output'].split('def')[0]
@@ -215,10 +187,9 @@ def generate_data(dataset, key, max_num=200, min_len=0, max_len=128, max_comment
                 continue
 
             # if the are too many comments, skip
-            # TODO: may need to modify this if we implement comment generation in the future
             def count_comment(text):
                 return text.count('#')
-            
+
             if count_comment(line['solution']) > max_comment_num or count_comment(line['output']) > max_comment_num:
                 max_comment_num_count += 1
                 continue
@@ -226,19 +197,15 @@ def generate_data(dataset, key, max_num=200, min_len=0, max_len=128, max_comment
             # if there are too many TODOs, skip
             def count_todo_comment(text):
                 return text.count('# TODO') + text.count('# todo')
-            
+
             if count_todo_comment(line['solution']) > max_todo_num or count_todo_comment(line['output']) > max_todo_num:
                 max_todo_num_count += 1
                 continue
-
 
             # the number of text.count("'''") and text.count('"""') should be <1
             if line['solution'].count("'''") > 0 or line['solution'].count('"""') > 0 or line['output'].count("'''") > 0 or line['output'].count('"""') > 0:
                 function_comment_num_count += 1
                 continue
-
-            
-            # TODO: may need to filter out examples with too many repeated lines or n-grams
 
             # cut to 128 tokens
             all_originals.append(' '.join(line['solution'].split(' ')[:max_len]))
@@ -251,6 +218,7 @@ def generate_data(dataset, key, max_num=200, min_len=0, max_len=128, max_comment
     logger.info(f'{function_comment_num_count} examples have more than 1 function comment')
     logger.info(f'Loaded {len(all_originals)} examples after filtering, and will return {min(max_num, len(all_originals))} examples')
 
+    # statistical analysis
     # import random
     # random.seed(42)
     # random.shuffle(all_originals)
@@ -263,22 +231,15 @@ def generate_data(dataset, key, max_num=200, min_len=0, max_len=128, max_comment
 
     return data
 
-data = generate_data(args.dataset, args.dataset_key, max_num=args.n_samples, min_len=args.min_len, max_len=args.max_len, max_comment_num=args.max_comment_num, max_def_num=args.max_def_num, cut_def=args.cut_def, max_todo_num=args.max_todo_num)
 
-# %%
+data = generate_data(args.dataset, args.dataset_key, max_num=args.n_samples, min_len=args.min_len, max_len=args.max_len,
+                     max_comment_num=args.max_comment_num, max_def_num=args.max_def_num, cut_def=args.cut_def, max_todo_num=args.max_todo_num)
+
 logger.info(f'Original: {data["original"][0]}')
 logger.info(f'Sampled: {data["sampled"][0]}')
 
-# %%
-from identifier_tagging import get_identifier
-import numpy as np
-import re
-import random
-
 pattern = re.compile(r"<extra_id_\d+>")
 pattern_with_space = re.compile(r" <extra_id_\d+> ")
-
-# remove one space before and after the mask
 
 
 def remove_mask_space(text):
@@ -313,9 +274,6 @@ def tokenize_and_mask_identifiers(text, args, span_length, pct, ceil_pct=False, 
         if lines[line_number][start_pos:end_pos] in sampled:
             # Replace the identified section in the line
             lines[line_number] = lines[line_number][:start_pos] + mask_string + lines[line_number][end_pos:]
-
-    # TODO: break apart the tokens (so that the model can learn to recover the prefix and postfix) (but it seems useless for code related tasks after observing the codes
-    # TODO: apply the buffer strategy that we also mask the surrounding tokens
 
     # Join the lines back together
     masked_text = '\n'.join(lines)
@@ -397,8 +355,6 @@ def apply_extracted_fills(masked_texts, extracted_fills):
             texts.append('')
         else:
             for fill_idx in range(n):
-                # find f"<extra_id_{fill_idx}>" and then replace it with the corresponding fill
-                # logger.info(f"replacing f'<extra_id_{fill_idx}>' with '{fills[fill_idx]}'")
                 text = text.replace(f"<extra_id_{fill_idx}>", fills[fill_idx])
             texts.append(text)
 
@@ -475,16 +431,6 @@ def perturb_texts_(texts, args,  model_config, ceil_pct=False):
             for idx in idxs:
                 perturbed_texts[idx] = texts[idx]
 
-        # TODO: may be we can abondon such samples, together with the corresponding original samples
-        # if attempts > 10:
-        #     logger.warning(f'WARNING: {len(idxs)} texts have no fills. Abandoning these samples.')
-        #     logger.info(f'texts: {texts}')
-        #     logger.info(f'masked_texts: {masked_texts}')
-        #     logger.info(f'raw_fills: {raw_fills}')
-        #     logger.info(f'extracted_fills: {extracted_fills}')
-        #     logger.info(f'perturbed_texts: {perturbed_texts}')
-            # break
-
     logger.info(f'texts: {texts[0]}')
     logger.info(f'perturbed_texts: {perturbed_texts[0]}')
 
@@ -559,8 +505,6 @@ def random_insert_space(text, pct=0.3, mean=1):
         tokens[idx] = tokens[idx] + ' '*n_spaces
     return ' '.join(tokens)
 
-# %%
-# example of masking identifiers
 
 ceil_pct = False
 texts = ['''
@@ -609,24 +553,14 @@ logger.info(f'original texts: {texts[0]}')
 logger.info(f'masked_texts: {masked_texts[0]}')
 logger.info(f'perturbed_texts: {perturbed_texts[0]}')
 
-# %%
-from baselines.loss import get_ll, get_lls
 # from baselines.detectGPT import perturb_texts
-from baselines.rank import get_ranks, get_rank
-from baselines.entropy import get_entropy
-from baselines.supervised import eval_supervised
-import torch
-import numpy as np
-import functools
-from baselines.utils.run_baseline import get_roc_metrics, get_precision_recall_metrics, get_accurancy, run_baseline_threshold_experiment
-import math
 
 original_text = data["original"]
 sampled_text = data["sampled"]
 
-perturb_fn = functools.partial(perturb_texts, args=args, model_config=model_config) # perturbation function
-p_sampled_text = perturb_fn([x for x in sampled_text for _ in range(max(n_perturbation_list))]) # perturb sampled text
-p_original_text = perturb_fn([x for x in original_text for _ in range(max(n_perturbation_list))]) # perturb original text
+perturb_fn = functools.partial(perturb_texts, args=args, model_config=model_config)  # perturbation function
+p_sampled_text = perturb_fn([x for x in sampled_text for _ in range(max(n_perturbation_list))])  # perturb sampled text
+p_original_text = perturb_fn([x for x in original_text for _ in range(max(n_perturbation_list))])  # perturb original text
 
 results = []
 for idx in range(len(original_text)):
@@ -637,7 +571,6 @@ for idx in range(len(original_text)):
         "perturbed_original": p_original_text[idx * max(n_perturbation_list): (idx + 1) * max(n_perturbation_list)]
     })
 
-# %%
 selected_index = 1
 selected_perturb = 3
 
@@ -652,16 +585,12 @@ print([x for x in p_original_text[int(args.n_perturbation_list)*selected_index+s
 print(f"original text length: {len(original_text)}")
 print(f"perturbed text length: {len(p_original_text)}")
 
-# %%
 model_config['mask_model'] = model_config['mask_model'].cpu()
 torch.cuda.empty_cache()
 
 # start to load the base scoring model
 model_config = load_base_model_and_tokenizer(args, model_config)
 
-# visualize LRR and NPR
-
-# compute the log likelihoods and log ranks first
 
 for res in tqdm(results, desc="Computing unperturbed log likelihoods"):
     res["original_ll"] = get_ll(res["original"], args, model_config)
@@ -676,10 +605,12 @@ for res in tqdm(results, desc="Computing perturbed log likelihoods"):
     p_original_ll = get_lls(res["perturbed_original"], args, model_config)
 
     for n_perturbation in n_perturbation_list:
-        res[f"perturbed_sampled_ll_{n_perturbation}"] = np.mean([i for i in p_sampled_ll[:n_perturbation] if not math.isnan(i)]) 
+        res[f"perturbed_sampled_ll_{n_perturbation}"] = np.mean([i for i in p_sampled_ll[:n_perturbation] if not math.isnan(i)])
         res[f"perturbed_original_ll_{n_perturbation}"] = np.mean([i for i in p_original_ll[:n_perturbation] if not math.isnan(i)])
-        res[f"perturbed_sampled_ll_std_{n_perturbation}"] = np.std([i for i in p_sampled_ll[:n_perturbation] if not math.isnan(i)]) if len([i for i in p_sampled_ll[:n_perturbation] if not math.isnan(i)]) > 1 else 1
-        res[f"perturbed_original_ll_std_{n_perturbation}"] = np.std([i for i in p_original_ll[:n_perturbation] if not math.isnan(i)]) if len([i for i in p_original_ll[:n_perturbation] if not math.isnan(i)]) > 1 else 1
+        res[f"perturbed_sampled_ll_std_{n_perturbation}"] = np.std([i for i in p_sampled_ll[:n_perturbation] if not math.isnan(i)]) if len([
+            i for i in p_sampled_ll[:n_perturbation] if not math.isnan(i)]) > 1 else 1
+        res[f"perturbed_original_ll_std_{n_perturbation}"] = np.std([i for i in p_original_ll[:n_perturbation] if not math.isnan(i)]) if len([
+            i for i in p_original_ll[:n_perturbation] if not math.isnan(i)]) > 1 else 1
 
 for res in tqdm(results, desc="Computing perturbed log rank"):
     p_sampled_rank = get_ranks(res["perturbed_sampled"], args, model_config, log=True)
@@ -690,16 +621,9 @@ for res in tqdm(results, desc="Computing perturbed log rank"):
 
 torch.cuda.empty_cache()
 
-# %%
-print(len(results)) # corresponds to the number of samples, and the result of each sample is stored in a dictionary
-print(results[0].keys()) # corresponds to the computed metrics of for each sample
-results[0]
+print(len(results))  # corresponds to the number of samples, and the result of each sample is stored in a dictionary
+print(results[0].keys())  # corresponds to the computed metrics of for each sample
 
-# %%
-import matplotlib.pyplot as plt
-import numpy as np
-from scipy.stats import norm
-from sklearn.neighbors import KernelDensity
 
 def vislualize_distribution(predictions, title, ax):
 
@@ -731,6 +655,7 @@ def vislualize_distribution(predictions, title, ax):
     ax.set_xlabel("Value")
     ax.set_ylabel("Density")
     ax.legend()
+
 
 fig, axs = plt.subplots(2, 2, figsize=(10, 10))
 
@@ -783,6 +708,3 @@ vislualize_distribution(predictions, f'DetectGPT AUC = {roc_auc}', axs[1, 1])
 
 plt.tight_layout()
 plt.savefig('results.pdf')
-plt.show()
-
-

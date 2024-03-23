@@ -56,17 +56,7 @@ def get_identifier(code, lang):
             return
         for child in root.children:
             if child.type == 'identifier':
-                # print the name of the child
-                # logger.info(f'child: {get_identifier_from_position(code, child.start_point, child.end_point)}')
-                # print the previous byte
-                # logger.info(f'previous byte: {code[child.start_byte - 1]}')
-
-                # If the previous byte is a ., then this is a method call, not an identifier
-                # TODO: this works for python, but not for other languages
-                # TODO: but it's still meaningful to include the method call in our perturbation method
                 if child.start_byte > 0 and code[child.start_byte - 1] == '.':
-                    # show the name of the child
-                    # logger.info(f'child: {get_identifier_from_position(code, child.start_point, child.end_point)} is a method call, not an identifier')
                     continue
                 # the token 'self' is not an identifier to perturb
                 if get_identifier_from_position(code, child.start_point, child.end_point) == 'self':
@@ -75,7 +65,6 @@ def get_identifier(code, lang):
                 start_point = child.start_point
                 end_point = child.end_point
                 pos.insert(0, (start_point, end_point))
-            # todo: whether to include the comments and printed strings
             traverse(child)
 
 
@@ -87,16 +76,10 @@ def get_identifier(code, lang):
     # return identifiers, and the position of all identifiers
     return list(set(identifiers)), pos
 
-# get the identifier from the code with the fix position
-
 
 def get_identifier_from_position(code_string, start_point, end_point):
 
     lines = code_string.splitlines()
-
-    # logger.info(f'lines[start_point[0]]: {lines[start_point[0]]}')
-    # logger.info(f'start_point: {start_point}')
-    # logger.info(f'end_point: {end_point}')
 
     identifier = lines[start_point[0]][start_point[1]:end_point[1]]
     # logger.info(f'identifier: {identifier}\n\n')
@@ -130,8 +113,6 @@ def load_data(path, language='python', max_num=10000):
                 solution = data['original_string'].split('"""')[2]
                 success += 1
             except:
-                # logger.info(f'Error in prompt/solution extraction for {data["original_string"]}')
-                # pdb.set_trace()
                 failed += 1
 
             all_data.append(solution)
@@ -143,25 +124,6 @@ def load_data(path, language='python', max_num=10000):
     logger.info(f'All lengths: min: {min(all_lengths)}, max: {max(all_lengths)}, mean: {np.mean(all_lengths)}, std: {np.std(all_lengths)}')
 
     return all_data
-
-
-def generate_tags(input_ids, identifiers):
-    tags = []
-    all_identifiers = ' '.join(identifiers)
-
-    # logger.info(f'all_identifiers: {all_identifiers}')
-    for input_id in input_ids:
-        token = tokenizer.decode(input_id)
-        # logger.info(f'token: {token}, token.strip(): {token.strip()}')
-
-        if token.strip() in all_identifiers and token.strip() != '':
-            tags.append(1)  # Tag as identifier
-            # logger.info('tagged as identifier\n')
-        else:
-            tags.append(0)  # Tag as non-identifier
-            # logger.info('tagged as non-identifier\n')
-    return tags
-
 
 if __name__ == '__main__':
 
@@ -202,36 +164,3 @@ tags to be added to the image.
     logger.info(f'code_item: \n{code_item}')
     logger.info(f'varnames: \n{varnames}')
     logger.info(f'pos: \n{pos}')
-
-    # tokenizer = RobertaTokenizer.from_pretrained('Salesforce/CodeT5-base')
-
-    # input_ids = tokenizer(code_item, return_tensors="pt").input_ids
-    # token_tags = generate_tags(input_ids[0], varnames)
-
-    # assert len(token_tags) == len(input_ids[0])
-
-    # # for id in input_ids[0]:
-    # #     print(f'{id} -> {tokenizer.decode(id)}')
-
-    # for i, tag in enumerate(token_tags):
-    #     print(f'{tokenizer.decode(input_ids[0][i])} -> {tag}')
-
-    # path = '../code-generation/output/CodeSearchNet/codegen-16B-multi/outputs.txt'
-
-    # all_data = []
-    # with open(path, 'r') as f:
-    #     for line in tqdm(f):
-    #         data = json.loads(line)
-    #         generated_code = data['output']
-    #         all_data.append(generated_code)
-
-    # logger.info(f'Generated code: \n{all_data[0]}')
-
-    # code_item = all_data[0]
-
-    # varnames, pos = get_identifier(code_item, 'python')
-
-    # logger.info(f'code_item: \n{code_item}')
-    # logger.info(f'varnames: \n{varnames}')
-    # logger.info(f'code_item: \n{code_item}')
-    # logger.info(f'pos: \n{pos}')

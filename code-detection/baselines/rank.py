@@ -30,13 +30,6 @@ def get_rank(text, args, model_config, log=False):
         ranks = ranks.float() + 1  # convert to 1-indexed rank
         if log:
             ranks = torch.log(ranks)
-
-        # # get gpu temperature
-        # temp = [int(i) for i in os.popen('nvidia-smi --query-gpu=temperature.gpu --format=csv,noheader').read().split() if i != '']
-        # max_temp = max(temp)
-        # if max_temp > 75:
-        #     print('GPU temperature is too high, waiting for 0.5 seconds...')
-        #     time.sleep(0.5)
     
         time.sleep(0.01)
 

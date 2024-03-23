@@ -16,14 +16,7 @@ def get_ll(text, args, model_config):
         if 'token_type_ids' in tokenized.keys():
             tokenized.pop('token_type_ids')
         labels = tokenized['input_ids']
-
-        # get gpu temperature
-        # temp = [int(i) for i in os.popen('nvidia-smi --query-gpu=temperature.gpu --format=csv,noheader').read().split() if i != '']
-        # max_temp = max(temp)
-        # if max_temp > 75:
-        #     print('GPU temperature is too high, waiting for 0.5 seconds...')
-        #     time.sleep(0.5)
-
+        
         time.sleep(0.01)
 
         return -model_config['base_model'](**tokenized, labels=labels).loss.item()

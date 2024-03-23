@@ -34,14 +34,6 @@ def load_data(path='./benchmark/humaneval-x', language='python', max_num=10000):
             for line in f:
                 data = json.loads(line)
 
-                # # dict_keys(['task_id', 'prompt', 'canonical_solution', 'test', 'text', 'declaration', 'example_test'])
-                # for key, value in data.items():
-                #     logger.info(f'\n{key}: {value}')
-                #     # the 'test' contains test cases for evaluation
-                #     # text contains the function docstring, in the prompt
-                #     # declaration contains the function declaration part, also in the prompt
-                #     # example_test contains the test cases for the example function, in the prompt
-
                 all_prompts.append(data['prompt'])
                 all_solutions.append(data['canonical_solution'])
 
@@ -67,20 +59,14 @@ def load_data(path='./benchmark/humaneval-x', language='python', max_num=10000):
 
                 data = json.loads(line)
 
-                # {'repo': 'smdabdoub/phylotoast', 'path': 'phylotoast/util.py', 'func_name': 'split_phylogeny', 'original_string': 'def split_phylogeny(p, level="s"):\n    """\n    Return either the full or truncated version of a QIIME-formatted taxonomy string.\n\n    :type p: str\n    :param p: A QIIME-formatted taxonomy string: k__Foo; p__Bar; ...\n\n    :type level: str\n    :param level: The different level of identification are kingdom (k), phylum (p),\n                  class (c),order (o), family (f), genus (g) and species (s). If level is\n                  not provided, the default level of identification is species.\n\n    :rtype: str\n    :return: A QIIME-formatted taxonomy string up to the classification given\n            by param level.\n    """\n    level = level+"__"\n    result = p.split(level)\n    return result[0]+level+result[1].split(";")[0]', 'language': 'python', 'code': 'def split_phylogeny(p, level="s"):\n    """\n    Return either the full or truncated version of a QIIME-formatted taxonomy string.\n\n    :type p: str\n    :param p: A QIIME-formatted taxonomy string: k__Foo; p__Bar; ...\n\n    :type level: str\n    :param level: The different level of identification are kingdom (k), phylum (p),\n                  class (c),order (o), family (f), genus (g) and species (s). If level is\n                  not provided, the default level of identification is species.\n\n    :rtype: str\n    :return: A QIIME-formatted taxonomy string up to the classification given\n            by param level.\n    """\n    level = level+"__"\n    result = p.split(level)\n    return result[0]+level+result[1].split(";")[0]', 'code_tokens': ['def', 'split_phylogeny', '(', 'p', ',', 'level', '=', '"s"', ')', ':', 'level', '=', 'level', '+', '"__"', 'result', '=', 'p', '.', 'split', '(', 'level', ')', 'return', 'result', '[', '0', ']', '+', 'level', '+', 'result', '[', '1', ']', '.', 'split', '(', '";"', ')', '[', '0', ']'], 'docstring': 'Return either the full or truncated version of a QIIME-formatted taxonomy string.\n\n    :type p: str\n    :param p: A QIIME-formatted taxonomy string: k__Foo; p__Bar; ...\n\n    :type level: str\n    :param level: The different level of identification are kingdom (k), phylum (p),\n                  class (c),order (o), family (f), genus (g) and species (s). If level is\n                  not provided, the default level of identification is species.\n\n    :rtype: str\n    :return: A QIIME-formatted taxonomy string up to the classification given\n            by param level.', 'docstring_tokens': ['Return', 'either', 'the', 'full', 'or', 'truncated', 'version', 'of', 'a', 'QIIME', '-', 'formatted', 'taxonomy', 'string', '.'], 'sha': '0b74ef171e6a84761710548501dfac71285a58a3', 'url': 'https://github.com/smdabdoub/phylotoast/blob/0b74ef171e6a84761710548501dfac71285a58a3/phylotoast/util.py#L159-L177', 'partition': 'train'}
-
                 data['original_string'] = data['original_string'].replace("'''", '"""')
                 try:
                     prompt = data['original_string'].split('"""')[0] + '"""' + data['original_string'].split('"""')[1] + '"""'
                     solution = data['original_string'].split('"""')[2]
                     success += 1
                 except:
-                    # logger.info(f'Error in prompt/solution extraction for {data["original_string"]}')
-                    # pdb.set_trace()
                     failed += 1
 
-                # logger.info(f'prompt: \n{prompt}')
-                # logger.info(f'solution: \n{solution}')
 
                 if len(prompt.split()) > max_prompt_len or len(prompt.split()) < min_prompt_len:
                     continue
@@ -90,10 +76,6 @@ def load_data(path='./benchmark/humaneval-x', language='python', max_num=10000):
 
                 all_prompts.append(prompt)
                 all_solutions.append(solution)
-                # keep the original version because I've ran other experiments already
-                # count += 1
-                # if count >= max_num:
-                #     break
 
         logger.info(f'Failed: {failed}, Success: {success}')
 
@@ -125,12 +107,8 @@ def load_data(path='./benchmark/humaneval-x', language='python', max_num=10000):
                     solution = data['original_string'].split('"""')[2]
                     success += 1
                 except:
-                    # logger.info(f'Error in prompt/solution extraction for {data["original_string"]}')
-                    # pdb.set_trace()
                     failed += 1
 
-                # logger.info(f'prompt: \n{prompt}')
-                # logger.info(f'solution: \n{solution}')
 
                 if len(prompt.split()) > max_prompt_len or len(prompt.split()) < min_prompt_len:
                     continue
@@ -138,16 +116,8 @@ def load_data(path='./benchmark/humaneval-x', language='python', max_num=10000):
                 if len(solution.split()) > max_solution_len or len(solution.split()) < min_solution_len:
                     continue
 
-                # if there is almost no docstring, skip (this have been done in the "try" part above")
-                # if len(data['original_string'].split('"""')[1]) < 3:
-                #     continue
-
                 all_prompts.append(prompt)
                 all_solutions.append(solution)
-                # keep the original version because I've ran other experiments already
-                # count += 1
-                # if count >= max_num:
-                #     break
 
         logger.info(f'Failed: {failed}, Success: {success}')
 
@@ -159,10 +129,7 @@ def load_data(path='./benchmark/humaneval-x', language='python', max_num=10000):
     logger.info(f'Prompt lengths: min: {min(prompt_lengths)}, max: {max(prompt_lengths)}, mean: {np.mean(prompt_lengths)}, std: {np.std(prompt_lengths)}')
     logger.info(f'Solution lengths: min: {min(solution_lengths)}, max: {max(solution_lengths)}, mean: {np.mean(solution_lengths)}, std: {np.std(solution_lengths)}')
 
-    # todo: remove this sampling because I added max_num in preprocessing part
     if len(all_prompts) > max_num:
-        # sample a subset of the data
-        # fix the random seed for reproducibility
 
         seed = 42
         np.random.seed(seed)
@@ -194,41 +161,8 @@ def truncate(completion):
         ]
     ]
 
-    # prints = list(re.finditer('^print', completion, re.MULTILINE))
-    # if len(prints) > 1:
-    #     completion = completion[:prints[1].start()]
-
-    # defs = list(re.finditer('^def', completion, re.MULTILINE))
-    # logger.info(f'defs: {defs}')
-    # if len(defs) > 1:
-    #     completion = completion[:defs[1].start()]
-
-    # todo: decide whether to remove the def lines (found some examples that have multiple def lines)
-    # remove the 'def' lines
-    # defs = list(re.finditer('    def ', completion, re.MULTILINE))
-    # logger.info(f'defs: {defs}')
-    # if len(defs) >= 1:
-    #     completion = completion[:defs[0].start()]
-
-    # # remove the '@' lines
-    # ats = list(re.finditer('^    @', completion, re.MULTILINE))
-    # logger.info(f'ats: {ats}')
-    # if len(ats) > 0:
-    #     completion = completion[:ats[0].start()]
-
-    # todo: decide whether to remove the comments
-    # # remove all the lines that start with '    #'
-    # # split the completion into lines
-    # lines = completion.splitlines()
-    # # remove the lines that start with '    #'
-    # lines = [line for line in lines if not line.startswith('    #')]
-    # # join the lines back together
-    # completion =
 
     start_pos = 0
-
-    # # remove the comments
-    # comments = list(re.finditer('^    #', completion, re.MULTILINE))
 
     terminals_pos = [pos for pos in [find_re(completion, terminal, start_pos) for terminal in terminals] if pos != -1]
     if len(terminals_pos) > 0:
@@ -316,11 +250,6 @@ def generate_hf(model_name, prompts, solutions, batch_size=16, max_length_sample
 
         dataloader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, pin_memory=True, num_workers=num_workers)
 
-        # todo: when to use bad_words_ids?
-        # bad_words = ['#', '"""', "'''"]
-        # bad_words_ids = tokenizer(bad_words, add_prefix_space=True, add_special_tokens=False).input_ids
-        # logger.info(f'bad_words_ids: {bad_words_ids}')
-
         for input_ids in tqdm(dataloader, ncols=50):
 
             input_ids = input_ids[0].to(device)
@@ -348,82 +277,7 @@ def generate_hf(model_name, prompts, solutions, batch_size=16, max_length_sample
     return prompts, outputs, solutions
 
 
-def generate_openai(model_name, prompts, solutions, max_tokens=128, batch_size=10):
-
-    # generate the outputs using the openai api
-
-    # get the api key from the environment variable
-    # os.environ["OPENAI_API_KEY"] = "PUT YOUR API KEY HERE"
-    api_key = os.getenv('OPENAI_API_KEY')
-
-    # create the openai object
-    openai.api_key = api_key
-
-    # generate the outputs
-    outputs = []
-    logger.info(f'Generating outputs with openai api')
-
-
-    RPM = 20
-    for i in tqdm(range(0, len(prompts), batch_size), ncols=50):
-        prompt = prompts[i:i+batch_size]
-        solution = solutions[i:i+batch_size]
-
-        # generate the output
-        # https://platform.openai.com/docs/guides/rate-limits/overview
-        # logger.info(f'prompt: \n{prompt}')
-        # logger.info(f'solution: \n{solution}')
-
-        logger.info('sending request to openai api...')
-
-        # response = openai.Completion.create(
-        #     engine=model_name,
-        #     prompt=prompt,
-        #     max_tokens=256,
-        #     top_p=0.95)
-
-        # try for infinite times until the request is successful
-        while True:
-            retry_count = 0
-            try:
-                response = openai.Completion.create(
-                    engine=model_name,
-                    prompt=prompt,
-                    max_tokens=max_tokens,
-                    top_p=0.95)
-                break
-            # show the error message and retry after certain time
-            except Exception as e:
-                # show the error message
-                logger.info(f'openai api request failed, error: {e}')
-                retry_count += 1
-                logger.info(f'openai api request failed, retrying... {retry_count}')
-                time.sleep(60/RPM)
-
-        logger.info('response received')
-        logger.info(f'response: \n{response}')
-
-        output = [choice['text'] for choice in response.choices]
-
-        outputs.extend(output)
-
-        time.sleep(60/RPM)
-
-    outputs = [truncate(output) for output in outputs]
-    logger.info(f'Generated {len(outputs)} samples')
-    output_lengths = [len(output.split()) for output in outputs]
-
-    logger.info(f'output lengths: min: {min(output_lengths)}, max: {max(output_lengths)}, mean: {np.mean(output_lengths)}, std: {np.std(output_lengths)}')
-
-    return prompts, outputs, solutions
-
-
 if __name__ == "__main__":
-
-    # load the data
-    # path = './benchmark/humaneval-x'
-    # path = 'data/CodeSearchNet'
-    # path = "data/TheVault"
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--path', type=str, default="./benchmark/humaneval-x")
@@ -445,23 +299,11 @@ if __name__ == "__main__":
     # max_num = 100000
     prompts, solutions = load_data(path=path, language='python', max_num=max_num)
 
-    # batch_size = 32
-    # model_size = '6B'  # '350M' '2B' # '6B' # '16B'
-    # model_name = f"Salesforce/codegen-{model_size}-multi"
-    # model_name = "bigcode/santacoder"
-    # model_name = 'codeparrot/codeparrot'
-    # temperature = 0.2
 
-    # model_name = 'code-davinci-002'
+    prompts, outputs, solutions = generate_hf(model_name, prompts, solutions, max_length_sample=args.max_length,
+                                                max_length=128, do_sample=True, top_p=0.95, temperature=temperature, batch_size=batch_size)
 
-    if 'davinci' in model_name:
-        prompts, outputs, solutions = generate_openai(model_name, prompts, solutions, max_tokens=200, batch_size=10)
-
-    else:
-        prompts, outputs, solutions = generate_hf(model_name, prompts, solutions, max_length_sample=args.max_length,
-                                                  max_length=128, do_sample=True, top_p=0.95, temperature=temperature, batch_size=batch_size)
-
-        model_name = model_name.split('/')[-1]
+    model_name = model_name.split('/')[-1]
 
     logger.info(f'Generated {len(outputs)} outputs')
 
