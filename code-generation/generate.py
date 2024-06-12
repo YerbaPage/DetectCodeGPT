@@ -198,7 +198,7 @@ def generate_hf(model_name, prompts, solutions, batch_size=16, max_length_sample
         model = AutoModelForSeq2SeqLM.from_pretrained(model_name,
                                                       torch_dtype=torch.float16,
                                                       trust_remote_code=True)
-    # todo: not sure wizard for tp16
+
     elif "llama" in model_name.lower() or "wizard" in model_name.lower():
         model = AutoModelForCausalLM.from_pretrained(model_name, trust_remote_code=True, torch_dtype=torch.float16)
     elif "codegen2" in model_name.lower():
@@ -314,14 +314,10 @@ if __name__ == "__main__":
 
     save_prefix = f'output/{path.split("/")[-1]}'
 
-    if args.max_length >= 256:
-        file_name = f'{save_prefix}/{model_name}-{max_num}-tp{temperature}-nostop/outputs.txt'
-        if not os.path.exists(f'{save_prefix}/{model_name}-{max_num}-tp{temperature}-nostop'):
-            os.makedirs(f'{save_prefix}/{model_name}-{max_num}-tp{temperature}-nostop')
-    else:
-        file_name = f'{save_prefix}/{model_name}-{max_num}-tp{temperature}/outputs.txt'
-        if not os.path.exists(f'{save_prefix}/{model_name}-{max_num}-tp{temperature}'):
-            os.makedirs(f'{save_prefix}/{model_name}-{max_num}-tp{temperature}')
+    file_name = f'{save_prefix}/{model_name}-{max_num}-tp{temperature}/outputs.txt'
+    if not os.path.exists(f'{save_prefix}/{model_name}-{max_num}-tp{temperature}'):
+        os.makedirs(f'{save_prefix}/{model_name}-{max_num}-tp{temperature}')
+
     if os.path.exists(file_name):
         os.remove(file_name)
 
