@@ -130,9 +130,9 @@ def main(dataset, dataset_key, temperature, tokenizer_name):
     original_token_counts, original_line_counts = tokenize_data(data['original'], tokenizer)
     sampled_token_counts, sampled_line_counts = tokenize_data(data['sampled'], tokenizer)
 
-    # remove those with too many tokens ( > 500)
-    original_token_counts = [x for x in original_token_counts if x <= 500]
-    sampled_token_counts = [x for x in sampled_token_counts if x <= 500]
+    # remove those with too many tokens ( > 512)
+    original_token_counts = [x for x in original_token_counts if x <= 512]
+    sampled_token_counts = [x for x in sampled_token_counts if x <= 512]
 
     # Token distribution
     plot_distribution(original_token_counts, sampled_token_counts, "Distribution of Number of Tokens", save_name=f'token_distribution_tp{temperature}')
@@ -218,9 +218,9 @@ def main(dataset, dataset_key, temperature, tokenizer_name):
     original_token_counts, original_line_counts = tokenize_data(data['original'], tokenizer)
     sampled_token_counts, sampled_line_counts = tokenize_data(data['sampled'], tokenizer)
 
-    # remove those with too many tokens ( > 500)
-    original_token_counts = [x for x in original_token_counts if x <= 500]
-    sampled_token_counts = [x for x in sampled_token_counts if x <= 500]
+    # remove those with too many tokens ( > 512)
+    original_token_counts = [x for x in original_token_counts if x <= 512]
+    sampled_token_counts = [x for x in sampled_token_counts if x <= 512]
 
     # Token distribution
     plot_distribution(original_token_counts, sampled_token_counts, "Distribution of Number of Tokens", save_name=f'token_distribution_tp{temperature}')
