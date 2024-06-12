@@ -65,11 +65,11 @@ parser.add_argument('--max_todo_num', type=int, default=3)
 args_dict = {
 
     'dataset': "CodeSearchNet",
-    'dataset_key': "CodeLlama-7b-hf-5000-tp0.2",
+    'dataset_key': "CodeLlama-7b-hf-tp0.2",
     'pct_words_masked': 0.5,
     'pct_identifiers_masked': 0.75,
     'span_length': 2,
-    'n_samples': 5000,
+    'n_samples': 10000,
     'n_perturbation_list': "50",
     'n_perturbation_rounds': 1,
     'base_model_name': "bigcode/santacoder",

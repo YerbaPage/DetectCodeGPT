@@ -170,7 +170,6 @@ def load_data(dataset, key, max_num=200, min_len=1, max_len=128, max_comment_num
                 continue
 
             # if the are too many comments, skip
-            # TODO: may need to modify this if we implement comment generation in the future
             def count_comment(text):
                 return text.count('#')
 
@@ -190,8 +189,6 @@ def load_data(dataset, key, max_num=200, min_len=1, max_len=128, max_comment_num
             if line['solution'].count("'''") > 0 or line['solution'].count('"""') > 0 or line['output'].count("'''") > 0 or line['output'].count('"""') > 0:
                 function_comment_num_count += 1
                 continue
-
-            # TODO: may need to filter out examples with too many repeated lines or n-grams
 
             # cut to 128 tokens
             all_originals.append(' '.join(line['solution'].split(' ')[:max_len]))
@@ -243,8 +240,6 @@ def assign_category(hf_positions, hf_tokens, ts_tokens):
             hf_categories.append(max(set(overlapping_categories), key=overlapping_categories.count))
         else:
             hf_categories.append("whitespace")
-
-    # TODO: may need to handle the spaces and newlines in the future
 
     # Handle ''' and """ cases
     triple_quotes = ["'''", '"""']
@@ -684,7 +679,7 @@ if __name__ == '__main__':
     lang = 'python'
 
 
-    code_pairs = load_data(dataset='CodeSearchNet', key='CodeLlama-7b-hf-5000-tp1.0-nostop', max_num=max_num)
+    code_pairs = load_data(dataset='CodeSearchNet', key='CodeLlama-7b-hf-tp1.0-nostop', max_num=max_num)
 
     # analyze all the identifiers
     # analyze_identifiers(code_pairs, lang)
@@ -697,7 +692,7 @@ if __name__ == '__main__':
     check_heaps_law(code_pairs, lang)
 
 
-    code_pairs = load_data(dataset='CodeSearchNet', key='CodeLlama-7b-hf-5000-tp1.0-nostop', max_num=max_num)
+    code_pairs = load_data(dataset='CodeSearchNet', key='CodeLlama-7b-hf-tp1.0-nostop', max_num=max_num)
 
     # analyze all the identifiers
     # analyze_identifiers(code_pairs, lang)

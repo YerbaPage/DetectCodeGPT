@@ -144,12 +144,12 @@ def main(dataset, dataset_key, temperature, tokenizer_name):
 dataset = "CodeSearchNet"
 tokenizer_name = "bigcode/starcoderbase-3b"
 temperature = 0.2
-dataset_key = "starcoderbase-3b-5000-tp0.2-nostop"
+dataset_key = "starcoderbase-3b-tp0.2-nostop"
 
 main(dataset, dataset_key, temperature, tokenizer_name)
 
 temperature = 1.0
-dataset_key = "starcoderbase-3b-5000-tp1.0-nostop"
+dataset_key = "starcoderbase-3b-tp1.0-nostop"
 main(dataset, dataset_key, temperature, tokenizer_name)
 
 
@@ -232,10 +232,10 @@ def main(dataset, dataset_key, temperature, tokenizer_name):
 dataset = "CodeSearchNet"
 tokenizer_name = "codellama/CodeLlama-7b-hf"
 temperature = 0.2
-dataset_key = "CodeLlama-7b-hf-5000-tp0.2-nostop"
+dataset_key = "CodeLlama-7b-hf-tp0.2-nostop"
 
 main(dataset, dataset_key, temperature, tokenizer_name)
 
 temperature = 1.0
-dataset_key = "CodeLlama-7b-hf-5000-tp1.0-nostop"
+dataset_key = "CodeLlama-7b-hf-tp1.0-nostop"
 main(dataset, dataset_key, temperature, tokenizer_name)
