@@ -137,7 +137,5 @@ dataset/
 *.out
 cache/
 data/
-results/
-tmp_results/
 *back*/
 *.pt
