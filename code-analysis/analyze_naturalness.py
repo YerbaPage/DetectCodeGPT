@@ -62,15 +62,15 @@ parser.add_argument('--cut_def', action='store_true')
 parser.add_argument('--max_todo_num', type=int, default=3)
 
 args_dict = {
-    'dataset': "TheVault",
-    'dataset_key': "santacoder-100000-tp0.2",
+    'dataset': "CodeSearchNet",
+    'dataset_key': "CodeLlama-7b-hf-10000-tp1.0",
     'pct_words_masked': 0.5,
     'pct_identifiers_masked': 0.75,
     'span_length': 2,
     'n_samples': 500,
     'n_perturbation_list': "50",
     'n_perturbation_rounds': 1,
-    'base_model_name': "bigcode/santacoder",
+    'base_model_name': "codellama/CodeLlama-7b-hf",
     'scoring_model_name': "",
     'mask_filling_model_name': "Salesforce/codet5p-770m",
     'batch_size': 25,

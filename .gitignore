@@ -141,5 +141,3 @@ results/
 tmp_results/
 *back*/
 *.pt
-*.png
-*.pdf
