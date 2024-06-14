@@ -247,11 +247,6 @@ def generate_data(dataset, key, max_num=200, min_len=0, max_len=128, max_comment
                 continue
             line = json.loads(line)
 
-            # add the item if it's not too long (128 tokens)
-            # if len(line['solution'].split()) <= 128 and len(line['output'].split()) <= 128:
-            #     all_originals.append(line['solution'])
-            #     all_samples.append(line['output'])
-
             # cut out the 'def' part after the first generation
             if cut_def:
                 line['output'] = line['output'].split('def')[0]
@@ -270,7 +265,6 @@ def generate_data(dataset, key, max_num=200, min_len=0, max_len=128, max_comment
                 continue
 
             # if the are too many comments, skip
-            # TODO: may need to modify this if we implement comment generation in the future
             def count_comment(text):
                 return text.count('#')
             
@@ -292,10 +286,6 @@ def generate_data(dataset, key, max_num=200, min_len=0, max_len=128, max_comment
                 function_comment_num_count += 1
                 continue
 
-            
-            # TODO: may need to filter out examples with too many repeated lines or n-grams
-
-            # cut to 128 tokens
             all_originals.append(' '.join(line['solution'].split(' ')[:max_len]))
             all_samples.append(' '.join(line['output'].split(' ')[:max_len]))
 

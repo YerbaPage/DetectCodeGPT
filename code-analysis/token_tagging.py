@@ -244,7 +244,6 @@ def assign_category(hf_positions, hf_tokens, ts_tokens):
         else:
             hf_categories.append("whitespace")
 
-    # TODO: may need to handle the spaces and newlines in the future
 
     # Handle ''' and """ cases
     triple_quotes = ["'''", '"""']
