@@ -1,6 +1,6 @@
 # DetectCodeGPT
 
-Welcome to the repository for the research paper: "Between Lines of Code: Unraveling the Distinct Patterns of Machine and Human Programmers." Here, we present DetectCodeGPT, a novel approach to distinguish between machine- and human-generated code snippets. This README will guide you through setting up and using the DetectCodeGPT framework.
+Welcome to the repository for the research paper: "Between Lines of Code: Unraveling the Distinct Patterns of Machine and Human Programmers." Our paper has been accepted to the 47th International Conference on Software Engineering (ICSE 2025). 
 
 ## Getting Started
 
@@ -62,8 +62,21 @@ To evaluate our DetectCodeGPT model:
    python main.py
    ```
 
-## Support
 
-If you encounter any issues or have questions, please feel free to contact us!
+## Acknowledgements
 
-We hope that our work will aid in advancing the field of machine learning in code generation and detection. Thank you for your interest in DetectCodeGPT!
+The codes are modified based on the original repository of [DetectGPT](https://github.com/eric-mitchell/detect-gpt/tree/main/) and the original repository of [DetectLLM](https://github.com/mbzuai-nlp/DetectLLM). We thank the authors for their contributions.
+
+## Citation
+
+If you use DetectCodeGPT in your research, please cite our paper:
+
+```bibtex
+@inproceedings{shi2024detectcodegpt,
+title={Between Lines of Code: Unraveling the Distinct Patterns of Machine and Human Programmers},
+author={Shi, Yuling and Zhang, Hongyu and Wan, Chengcheng and Gu, Xiaodong},
+booktitle={Proceedings of the The 47th International Conference on Software Engineering (ICSE 2025)},
+year={2025},
+organization={IEEE}
+}
+```
