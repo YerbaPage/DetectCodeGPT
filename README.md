@@ -31,6 +31,8 @@ To prepare the datasets used in our study:
 
 ## Conducting the Empirical Study
 
+> You can skip the empirical study if you are only interested in detecting machine-generated code with DetectCodeGPT.
+
 After data preparation, you can proceed to the empirical analysis:
 
 1. Navigate to the `code-analysis` directory.
@@ -56,11 +58,13 @@ After data preparation, you can proceed to the empirical analysis:
 To evaluate our DetectCodeGPT model:
 
 1. Navigate to the `code-detection` directory.
-2. Configure `main.py` with the appropriate model and dataset paths.
+2. Configure `main.py` with the appropriate model and dataset paths. 
 3. Run the model evaluation script with:
    ```
    python main.py
    ```
+
+> If you are using your custom model to generate codes, please ensure to update `'base_model_name': "codellama/CodeLlama-7b-hf"` in `main.py` to your model name.
 
 
 ## Acknowledgements

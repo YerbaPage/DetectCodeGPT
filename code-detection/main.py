@@ -85,7 +85,7 @@ args_dict = {
     'n_samples': 500,
     'n_perturbation_list': "50",
     'n_perturbation_rounds': 1,
-    'base_model_name': "codellama/CodeLlama-7b-hf",
+    'base_model_name': "codellama/CodeLlama-7b-hf", # Make sure to use the same model as the one used for generating the samples
     'mask_filling_model_name': "Salesforce/codet5p-770m",
     'batch_size': 50,
     'chunk_size': 10,
@@ -114,7 +114,7 @@ args_dict = {
     'min_words': 55,
     'temperature': 1,
     'baselines': "LRR,DetectGPT,NPR",
-    'perturb_type': "random-insert-space+newline",
+    'perturb_type': "random-insert-space+newline", # if you want the performance of original DetectLLM-NPR and DetectGPT, use "random"
     'min_len': 0,
     'max_len': 128,
     'max_comment_num': 10,
@@ -658,7 +658,7 @@ def vislualize_distribution(predictions, title, ax):
 
 fig, axs = plt.subplots(2, 2, figsize=(10, 10))
 
-# if baseline == 'logrank':
+
 predictions = {'real': [], 'samples': []}
 for res in results:
     predictions['real'].append(-res['original_logrank'])
@@ -669,7 +669,6 @@ print(f"ROC AUC of logrank: {roc_auc}")
 vislualize_distribution(predictions, f'Logrank AUC = {roc_auc}', axs[0, 0])
 
 
-# if baseline == 'LRR':
 predictions = {'real': [], 'samples': []}
 for res in results:
     predictions['real'].append(-res['original_ll']/res['original_logrank'])
@@ -678,16 +677,7 @@ _, _, roc_auc = get_roc_metrics(predictions['real'], predictions['samples'])
 print(f'ROC AUC of LRR: {roc_auc}')
 vislualize_distribution(predictions, f'LRR AUC = {roc_auc}', axs[0, 1])
 
-# if baseline == 'NPR':
-predictions = {'real': [], 'samples': []}
-for res in results:
-    predictions['real'].append(res[f'perturbed_original_logrank_{n_perturbation}']/res["original_logrank"])
-    predictions['samples'].append(res[f'perturbed_sampled_logrank_{n_perturbation}']/res["sampled_logrank"])
-_, _, roc_auc = get_roc_metrics(predictions['real'], predictions['samples'])
-print(f'ROC AUC of NPR: {roc_auc}')
-vislualize_distribution(predictions, f'NPR AUC = {roc_auc}', axs[1, 0])
 
-# if baseline == 'DetectGPT':
 predictions = {'real': [], 'samples': []}
 for res in results:
 
@@ -702,8 +692,19 @@ for res in results:
     predictions['real'].append(real_comp)
     predictions['samples'].append(sample_comp)
 _, _, roc_auc = get_roc_metrics(predictions['real'], predictions['samples'])
-print(f'ROC AUC of DetectGPT: {roc_auc}')
-vislualize_distribution(predictions, f'DetectGPT AUC = {roc_auc}', axs[1, 1])
+
+print(f"ROC AUC of DetectGPT with DetectCodeGPT's perturbation")
+vislualize_distribution(predictions, f"DetectGPT with DetectCodeGPT's perturbation AUC = {roc_auc}", axs[1, 0])
+
+
+predictions = {'real': [], 'samples': []}
+for res in results:
+    predictions['real'].append(res[f'perturbed_original_logrank_{n_perturbation}']/res["original_logrank"])
+    predictions['samples'].append(res[f'perturbed_sampled_logrank_{n_perturbation}']/res["sampled_logrank"])
+_, _, roc_auc = get_roc_metrics(predictions['real'], predictions['samples'])
+print(f'ROC AUC of DetectCodeGPT: {roc_auc}')
+vislualize_distribution(predictions, f'DetectCodeGPT AUC = {roc_auc}', axs[1, 1])
+
 
 plt.tight_layout()
 plt.savefig('results.pdf')
