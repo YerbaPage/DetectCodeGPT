@@ -64,8 +64,7 @@ To evaluate our DetectCodeGPT model:
    python main.py
    ```
 
-> If you are using your custom model to generate codes, please ensure to update `'base_model_name': "codellama/CodeLlama-7b-hf"` in `main.py` to your model name.
-
+> If you are using your custom model to generate codes, please ensure to update `'base_model_name': "codellama/CodeLlama-7b-hf"` in `main.py` to your model name at the detection stage.
 
 ## Acknowledgements
 
