@@ -8,7 +8,7 @@
 
 </div>
 
-Welcome to the repository for the research paper: **"Between Lines of Code: Unraveling the Distinct Patterns of Machine and Human Programmers."** Our paper has been accepted to the 47th International Conference on Software Engineering (**ICSE 2025**).
+How can we develop zero-shot detection of machine generated codes? Welcome to the repository for the research paper: **"Between Lines of Code: Unraveling the Distinct Patterns of Machine and Human Programmers."** Our paper has been accepted to the 47th International Conference on Software Engineering (**ICSE 2025**).
 
 ## Table of Contents
 
